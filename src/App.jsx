@@ -2,6 +2,119 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import FootballChatbot from './FootballChatbot';
 
+// New component for fetching and displaying top scorers
+const TopScorers = ({ competitionId, apiKey }) => {
+  const [topScorers, setTopScorers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchTopScorers = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const response = await fetch(
+          `https://cors-anywhere.herokuapp.com/https://api.football-data.org/v4/competitions/${competitionId}/scorers?limit=5`,
+          {
+            headers: {
+              'X-Auth-Token': apiKey
+            }
+          }
+        );
+        
+        const data = await response.json();
+        
+        if (data.scorers) {
+          setTopScorers(data.scorers);
+        } else {
+          setError('No top scorer data available');
+        }
+        
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching top scorers:', err);
+        setError('Failed to load top scorers data');
+        setLoading(false);
+      }
+    };
+
+    if (competitionId) {
+      fetchTopScorers();
+    }
+  }, [competitionId, apiKey]);
+
+  if (loading) {
+    return (
+      <div className="top-scorers-section loading">
+        <div className="spinner"></div>
+        <p>Loading top scorers...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="top-scorers-section error">
+        <p>{error}</p>
+      </div>
+    );
+  }
+
+  if (topScorers.length === 0) {
+    return (
+      <div className="top-scorers-section empty">
+        <p>No top scorers data available</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="top-scorers-section">
+      <h3>Top Scorers</h3>
+      <div className="top-scorers-container">
+        <table className="top-scorers-table">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Player</th>
+              <th>Team</th>
+              <th className="center">Goals</th>
+              <th className="center">Assists</th>
+              <th className="center">Penalties</th>
+            </tr>
+          </thead>
+          <tbody>
+            {topScorers.map((scorer, index) => (
+              <tr key={`${scorer.player.id}-${index}`} className="scorer-row">
+                <td className="center">{index + 1}</td>
+                <td>
+                  <div className="player-cell">
+                    <span>{scorer.player.name}</span>
+                  </div>
+                </td>
+                <td>
+                  <div className="team-cell">
+                    <img 
+                      src={scorer.team.crest} 
+                      alt={`${scorer.team.name} logo`} 
+                      className="team-logo" 
+                    />
+                    <span>{scorer.team.name}</span>
+                  </div>
+                </td>
+                <td className="center bold">{scorer.goals}</td>
+                <td className="center">{scorer.assists || 0}</td>
+                <td className="center">{scorer.penalties || 0}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+};
+
 const TeamFixturesModal = ({ team, onClose, apiKey }) => {
   const [fixtures, setFixtures] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -293,6 +406,14 @@ const FootballStandings = () => {
                   </div>
                 </div>
               </div>
+            )}
+
+            {/* Top Scorers Section - Add this new section below standings */}
+            {!loading && selectedCompetition && standings.length > 0 && (
+              <TopScorers 
+                competitionId={selectedCompetition.id} 
+                apiKey={apiKey} 
+              />
             )}
 
             {/* Empty State */}
