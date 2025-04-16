@@ -15,7 +15,7 @@ const TopScorers = ({ competitionId, apiKey }) => {
         setError(null);
         
         const response = await fetch(
-          `https://cors-anywhere.herokuapp.com/https://api.football-data.org/v4/competitions/${competitionId}/scorers?limit=5`,
+          `https://us-central1-custom-cors-proxy-server.cloudfunctions.net/proxy?url=https://api.football-data.org/v4/competitions/${competitionId}/scorers?limit=5`,
           {
             headers: {
               'X-Auth-Token': apiKey
@@ -125,7 +125,7 @@ const TeamFixturesModal = ({ team, onClose, apiKey }) => {
 
     const fetchTeamFixtures = async () => {
       try {
-        const response = await fetch(`https://cors-anywhere.herokuapp.com/https://api.football-data.org/v4/teams/${team.id}/matches?status=SCHEDULED&limit=5`, {
+        const response = await fetch(`https://us-central1-custom-cors-proxy-server.cloudfunctions.net/proxy?url=https://api.football-data.org/v4/teams/${team.id}/matches?status=SCHEDULED&limit=5`, {
           headers: {
             'X-Auth-Token': apiKey
           }
@@ -236,7 +236,7 @@ const FootballStandings = () => {
   // Fetch available competitions on initial load
   useEffect(() => {
     const fetchCompetitions = () => {
-      fetch('https://cors-anywhere.herokuapp.com/https://api.football-data.org/v4/competitions/', {
+      fetch('https://us-central1-custom-cors-proxy-server.cloudfunctions.net/proxy?url=https://api.football-data.org/v4/competitions/', {
         headers: {
           'X-Auth-Token': apiKey
         }
@@ -270,7 +270,7 @@ const FootballStandings = () => {
     setLoading(true);
     setError(null);
   
-    fetch(`https://cors-anywhere.herokuapp.com/https://api.football-data.org/v4/competitions/${competitionId}/standings/`, {
+    fetch(`https://us-central1-custom-cors-proxy-server.cloudfunctions.net/proxy?url=https://api.football-data.org/v4/competitions/${competitionId}/standings/`, {
       headers: {
         'X-Auth-Token': apiKey
       }
